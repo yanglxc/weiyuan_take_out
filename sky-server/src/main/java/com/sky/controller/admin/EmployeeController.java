@@ -97,4 +97,39 @@ public class EmployeeController {
         return Result.success(pageResult);
     }
 
+    /**
+     * Status Modify: enable or unable employee account
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("Status Modify")
+    public Result statusModify(@PathVariable Integer status, Long id){
+        log.info("enable or unable employee account: {}, {}", status, id);
+        employeeService.statusModify(status, id);
+        return Result.success();
+    }
+
+    /**
+     * Get Employee By Id
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("Get Employee By Id")
+    public Result<Employee> getById(@PathVariable Long id){
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    /**
+     * Edit Employee
+     * @return
+     */
+    @PutMapping
+    @ApiOperation("Edit Employee")
+    public Result editEmployee(@RequestBody EmployeeDTO employeeDTO){
+        log.info("Edit Employee");
+        employeeService.editEmployee(employeeDTO);
+        return Result.success();
+    }
 }
