@@ -75,21 +75,76 @@ public class DishServiceImpl implements DishService {
     @Transactional
     public void deleteBatch(List<Long> ids) {
         //Determine whether the current dish can be deleted
-        for (Long id : ids) {
-            Dish dish = dishMapper.getById(id);
-            if (dish.getStatus() == StatusConstant.ENABLE){
+//        for (Long id : ids) {
+//            Dish dish = dishMapper.getById(id);
+//            if (dish.getStatus() == StatusConstant.ENABLE){
+//                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
+//            }
+//        }
+        List<Dish> dishes = dishMapper.getByIds(ids);
+        for (Dish dish : dishes) {
+            if (dish.getStatus().equals(StatusConstant.ENABLE)){
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         }
         List<Long> setMealIds = setMealDishMapper.getSetMealIdsByDishIds(ids);
-        if(setMealIds != null && !setMealIds.isEmpty()){
+        if (setMealIds != null && !setMealIds.isEmpty()){
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
         //Delete the dish data form dish table
-        for (Long id : ids) {
-            dishMapper.deleteById(id);
-            //Delete the flavor data associated with the dish
-            dishFlavorMapper.deleteByDishId(id);
+//        for (Long id : ids) {
+//            dishMapper.deleteById(id);
+//            //Delete the flavor data associated with the dish
+//            dishFlavorMapper.deleteByDishId(id);
+//        }
+        dishMapper.deleteByIds(ids);
+        dishFlavorMapper.deleteByIds(ids);
+    }
+    /**
+     * Query_Dish_By_Id
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        Dish dish = dishMapper.getById(id);
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+    /**
+     * Update_DIsh_With_Flavor
+     * @param dishDTO
+     */
+    public void updateWithFlavor(DishDTO dishDTO){
+        Long dishId = dishDTO.getId();
+        Dish dish = new Dish();
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
+        dishFlavorMapper.deleteByDishId(dishId);
+        if (flavors != null && !flavors.isEmpty()) {
+            flavors.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dishId);
+            });
         }
+        dishFlavorMapper.insertBatch(dishDTO.getFlavors());
+    }
+
+    /**
+     * Update_Dish_Status
+     *
+     * @param status
+     * @param id
+     * @return
+     */
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Dish dish = new Dish();
+        dish.setStatus(status);
+        dish.setId(id);
+        dishMapper.update(dish);
     }
 }
