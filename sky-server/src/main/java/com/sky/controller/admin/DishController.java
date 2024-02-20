@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -96,5 +97,17 @@ public class DishController {
         log.info("Update_Dish_Status: {} {}", status, id);
         dishService.updateStatus(status, id);
         return Result.success();
+    }
+
+    /**
+     * Get_By_Category_Id
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("Get_By_Category_Id")
+    public Result<ArrayList<DishVO>> getByCategoryId(Long categoryId){
+        log.info("Get_By_Category_Id: {}", categoryId);
+        ArrayList<DishVO> dishVOS = dishService.getByCategoryId(categoryId);
+        return Result.success(dishVOS);
     }
 }

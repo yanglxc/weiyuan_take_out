@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 @Slf4j
@@ -146,5 +147,17 @@ public class DishServiceImpl implements DishService {
         dish.setStatus(status);
         dish.setId(id);
         dishMapper.update(dish);
+    }
+
+    /**
+     * Get_By_Category_Id
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public ArrayList<DishVO> getByCategoryId(Long categoryId) {
+        ArrayList<DishVO> dishVOS = new ArrayList<>();
+        dishVOS = dishMapper.getByCategoryId(categoryId);
+        return dishVOS;
     }
 }

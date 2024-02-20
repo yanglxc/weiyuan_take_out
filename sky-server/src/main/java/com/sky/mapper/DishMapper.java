@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -48,4 +49,7 @@ public interface DishMapper {
     List<Dish> getByIds(List<Long> ids);
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
+
+    @Select("select * from dish where category_id = #{categoryId}")
+    ArrayList<DishVO> getByCategoryId(Long categoryId);
 }

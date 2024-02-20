@@ -5,6 +5,7 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.result.PageResult;
 import com.sky.vo.DishVO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface DishService {
@@ -50,4 +51,11 @@ public interface DishService {
      * @return
      */
     void updateStatus(Integer status, Long id);
+
+    /**
+     * Get_By_Category_Id
+     * @param categoryId
+     * @return
+     */
+    ArrayList<DishVO> getByCategoryId(Long categoryId);
 }
