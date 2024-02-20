@@ -6,10 +6,13 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
 import com.sky.mapper.CategoryMapper;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealDishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.result.PageResult;
@@ -33,6 +36,8 @@ public class SetMealServiceImpl implements SetMealService {
     private SetMealDishMapper setMealDishMapper;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private DishMapper dishMapper;
     /**
      * Add_Meal
      * @return
@@ -121,6 +126,19 @@ public class SetMealServiceImpl implements SetMealService {
      */
     @Override
     public void setStatus(Integer status, Long id) {
+        List<SetmealDish> mealDish = setMealDishMapper.getSetMealDishByMealId(id);
+        List<Long> dishIds = new ArrayList<>();
+        for (SetmealDish dish : mealDish) {
+            dishIds.add(dish.getDishId());
+        }
+        List<Dish> dishes = dishMapper.getByIds(dishIds);
+        if (dishes != null && !dishes.isEmpty()){
+            for (Dish dish : dishes) {
+                if (dish.getStatus().equals(StatusConstant.DISABLE)){
+                    throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                }
+            }
+        }
         setmealMapper.setMealStatus(status, id);
     }
 }

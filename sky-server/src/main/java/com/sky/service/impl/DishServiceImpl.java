@@ -8,10 +8,13 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.Setmeal;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.DishEnableFailedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealDishMapper;
+import com.sky.mapper.SetMealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -32,6 +35,8 @@ public class DishServiceImpl implements DishService {
     private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private SetMealDishMapper setMealDishMapper;
+    @Autowired
+    private SetMealMapper setMealMapper;
     /**
      * Insert Dish With Flavor
      * @param dishDTO
@@ -143,6 +148,17 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public void updateStatus(Integer status, Long id) {
+        List<Long> ids = new ArrayList<>();
+        ids.add(id);
+        List<Long> MealIds = setMealDishMapper.getSetMealIdsByDishIds(ids);
+        if (MealIds != null && !MealIds.isEmpty()){
+            List<Setmeal> meals = setMealMapper.getByIds(MealIds);
+            for (Setmeal meal : meals) {
+                if (meal.getStatus().equals(StatusConstant.ENABLE)){
+                    throw new DishEnableFailedException(MessageConstant.DISH_DISABLE_FAILED);
+                }
+            }
+        }
         Dish dish = new Dish();
         dish.setStatus(status);
         dish.setId(id);
